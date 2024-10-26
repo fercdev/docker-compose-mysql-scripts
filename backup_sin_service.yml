@@ -1,0 +1,41 @@
+version: '3'
+services:
+  backend:
+    container_name: backend_nodemysql
+    image: fercdevv/backend-node-mysql:latest
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=users_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+  mysql:
+    container_name: db_mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: users_db
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+  data-copy:
+    image: busybox
+    container_name: copy-db
+    volumes:
+      - db_data:/data_copy
+      - ./caso_sin_script/backup2:/backup
+    entrypoint: /bin/sh -c "cp -r /data_copy/* /backup/"
+  
+volumes:
+    db_data:
+networks:
+  app-network:
+    driver: bridge

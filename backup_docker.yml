@@ -1,0 +1,50 @@
+version: '3'
+services:
+  backend:
+    container_name: backend_nodemysql
+    image: fercdevv/backend-node-mysql:latest
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=users_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+  mysql:
+    container_name: db_mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: users_db
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+  backup:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: users_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpassword
+      MYSQL_HOST: mysql
+      BACKUP_INTERVAL: 3600
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db-backup:/backup
+      - ./backup-script/script.sh:/usr/local/bin/script.sh
+    entrypoint: /usr/local/bin/script.sh
+    networks:
+      - app-network
+  
+volumes:
+    db_data:
+networks:
+  app-network:
+    driver: bridge

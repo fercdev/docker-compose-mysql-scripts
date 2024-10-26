@@ -1,0 +1,10 @@
+version: "3"
+services:
+  data-copy:
+    image: busybox
+    volumes:
+      - db_data:/data_copy
+      - ./caso_sin_script/backup2:/backup
+    entrypoint: /bin/sh -c "cp -r /data_copy/* /backup/"
+volumes:
+    db_data:
